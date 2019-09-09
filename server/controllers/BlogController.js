@@ -22,7 +22,7 @@ export default class BlogController {
 
     async getAllBlogs(req, res, next) {
         try {
-            let data = await _blogService.find({})
+            let data = await _blogService.find({}).populate("author", "name")
             return res.send(data)
         } catch (error) { next(error) }
 
@@ -30,7 +30,7 @@ export default class BlogController {
 
     async getBlogById(req, res, next) {
         try {
-            let data = await _blogService.findById(req.params.id)
+            let data = await _blogService.findById(req.params.id).populate("author", "name")
             if (!data) {
                 throw new Error("Invalid Id")
             }
@@ -40,7 +40,7 @@ export default class BlogController {
 
     async getAllComments(req, res, next) {
         try {
-            let data = await _commentService.find({ blogId: req.params.id }).populate("blogId", "body")
+            let data = await _commentService.find({ blogId: req.params.id }).populate("author", "name")
             return res.send(data)
         } catch (error) { next(error) }
 

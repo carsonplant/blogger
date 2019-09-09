@@ -6,6 +6,7 @@ const _model = new Schema({
   blogId: { type: ObjectId, ref: 'blog', required: true },
   body: { type: String, required: true },
   authorId: { type: ObjectId, ref: 'User', required: true },
+  author: { type: ObjectId, ref: 'User', required: true },
 }, { timestamps: true })
 
 export default class ValueService {
