@@ -10,6 +10,7 @@ export default class CommentController {
     this.router = express.Router()
       //NOTE all routes after the authenticate method will require the user to be logged in to access
       .get('', this.getAllComments)
+      .get('/:id', this.getCommentById)
       .use(Authorize.authenticated)
       .post('', this.createComment)
       .put('/:id', this.editComment)
@@ -31,20 +32,20 @@ export default class CommentController {
     } catch (error) { next(error) }
 
   }
-  // async getBlogById(req, res, next) {
-  //   try {
-  //     let data = await _blogService.findById(req.params.id)
-  //     if (!data) {
-  //       throw new Error("Invalid Id")
-  //     }
-  //     res.send(data)
-  //   } catch (error) { next(error) }
-  // }
+  async getCommentById(req, res, next) {
+    try {
+      let data = await _commentService.findById(req.params.id)
+      if (!data) {
+        throw new Error("Invalid Id")
+      }
+      res.send(data)
+    } catch (error) { next(error) }
+  }
 
   async createComment(req, res, next) {
     try {
       //NOTE the user id is accessable through req.body.uid, never trust the client to provide you this information
-      req.body.authorId = req.session.uid
+      req.body.author = req.session.uid
       let data = await _commentService.create(req.body)
       res.send(data)
     } catch (error) { next(error) }
@@ -52,7 +53,7 @@ export default class CommentController {
 
   async editComment(req, res, next) {
     try {
-      let data = await _commentService.findOneAndUpdate({ _id: req.params.id, authorId: req.session.uid }, req.body, { new: true })
+      let data = await _commentService.findOneAndUpdate({ _id: req.params.id, author: req.session.uid }, req.body, { new: true })
       if (data) {
         return res.send(data)
       }
@@ -64,7 +65,7 @@ export default class CommentController {
 
   async deleteComment(req, res, next) {
     try {
-      await _commentService.findOneAndRemove({ _id: req.params.id, authorId: req.session.uid })
+      await _commentService.findOneAndRemove({ _id: req.params.id, author: req.session.uid })
       res.send("deleted comment")
     } catch (error) { next(error) }
 

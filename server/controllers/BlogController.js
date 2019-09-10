@@ -1,3 +1,4 @@
+
 import express from 'express'
 import BlogService from '../services/BlogService';
 import { Authorize } from '../middleware/authorize.js'
@@ -40,7 +41,7 @@ export default class BlogController {
 
     async getAllComments(req, res, next) {
         try {
-            let data = await _commentService.find({ blogId: req.params.id }).populate("author", "name")
+            let data = await _commentService.find({ blogId: req.params.id }).populate("blogId", "name").populate("author", "name")
             return res.send(data)
         } catch (error) { next(error) }
 
@@ -48,7 +49,7 @@ export default class BlogController {
     async createBlog(req, res, next) {
         try {
             //NOTE the user id is accessable through req.body.uid, never trust the client to provide you this information
-            req.body.authorId = req.session.uid
+            req.body.author = req.session.uid
             let data = await _blogService.create(req.body)
             res.send(data)
         } catch (error) { next(error) }
@@ -56,7 +57,7 @@ export default class BlogController {
 
     async editBlog(req, res, next) {
         try {
-            let data = await _blogService.findOneAndUpdate({ _id: req.params.id, authorId: req.session.uid }, req.body, { new: true })
+            let data = await _blogService.findOneAndUpdate({ _id: req.params.id, author: req.session.uid }, req.body, { new: true })
             if (data) {
                 return res.send(data)
             }
@@ -68,7 +69,7 @@ export default class BlogController {
 
     async deleteBlog(req, res, next) {
         try {
-            await _blogService.findOneAndRemove({ _id: req.params.id, authorId: req.session.uid })
+            await _blogService.findOneAndRemove({ _id: req.params.id, author: req.session.uid })
             res.send("deleted blog")
         } catch (error) { next(error) }
 
